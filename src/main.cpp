@@ -1,7 +1,7 @@
 #include <SPI.h>
 #include <MFRC522.h>
 #include <ESP8266WiFi.h>
-int lock = 27;
+int lock = D1;
 #define LED_G 5 //define green LED pin
 #define LED_R 4 //define red LED
 #define ACCESS_DELAY 2000
@@ -53,8 +53,10 @@ if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
     digitalWrite(lock, LOW);
     digitalWrite(LED_G, HIGH);
     delay(ACCESS_DELAY);
-    digitalWrite(lock, LOW);
     digitalWrite(LED_G, LOW);
+    delay(3000);
+    digitalWrite(lock, HIGH);
+    return;
   }
  
  else   {
@@ -65,6 +67,4 @@ if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
     digitalWrite(LED_R, LOW);
   }
   delay(1000);
-  digitalWrite(lock, HIGH);
-  
 }
