@@ -2,8 +2,9 @@
 #include <MFRC522.h>
 #include <ESP8266WiFi.h>
 int lock = D1;
-#define LED_G 5 //define green LED pin
-#define LED_R 4 //define red LED
+#define LED_R D0 
+#define TRIG_PIN D2
+#define ECHO_PIN D8
 #define ACCESS_DELAY 2000
 #define DENIED_DELAY 1000
 #define RST_PIN D3   
@@ -15,6 +16,8 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);// Instance of the class
 void setup() {
   Serial.begin(9600);
   pinMode(lock, OUTPUT);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
   digitalWrite(lock, HIGH);
   SPI.begin();		//protokol untuk mikrokontroler dengan memori	
 	mfrc522.PCD_Init(); //inialisasi modulRFID
@@ -27,6 +30,24 @@ void setup() {
 }
 
 void loop() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2); 
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duration = pulseIn(ECHO_PIN, HIGH);
+  int distance_cm = (duration / 2) / 29.1;
+
+  Serial.print("Distance: ");
+  Serial.print(distance_cm);
+  Serial.println(" cm");
+  delay(1000);
+
+    if (distance_cm <100) {
+    digitalWrite(LED_R,HIGH);
+  }
+
 if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
     return;
 	}
@@ -51,9 +72,7 @@ if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
     Serial.println();
     delay(500);
     digitalWrite(lock, LOW);
-    digitalWrite(LED_G, HIGH);
     delay(ACCESS_DELAY);
-    digitalWrite(LED_G, LOW);
     delay(3000);
     digitalWrite(lock, HIGH);
     return;
@@ -62,9 +81,8 @@ if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
  else   {
     Serial.println(" Access denied");
     digitalWrite(lock, HIGH);
-    digitalWrite(LED_R, HIGH);
     delay(DENIED_DELAY);
-    digitalWrite(LED_R, LOW);
+    digitalWrite(LED_R,LOW);
   }
   delay(1000);
 }
