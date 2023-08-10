@@ -18,6 +18,7 @@ void setup() {
   pinMode(lock, OUTPUT);
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
+   pinMode(LED_R, OUTPUT);
   digitalWrite(lock, HIGH);
   SPI.begin();		//protokol untuk mikrokontroler dengan memori	
 	mfrc522.PCD_Init(); //inialisasi modulRFID
@@ -44,8 +45,13 @@ void loop() {
   Serial.println(" cm");
   delay(1000);
 
-    if (distance_cm <100) {
+    if (distance_cm <50) {
     digitalWrite(LED_R,HIGH);
+    Serial.println("Ada");
+  }
+  if (distance_cm >50) {
+    digitalWrite(LED_R,LOW);
+    Serial.println("Kosong");
   }
 
 if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
