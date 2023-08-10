@@ -2,6 +2,7 @@
 #include <MFRC522.h>
 #include <ESP8266WiFi.h>
 int lock = D1;
+int kartu;
 #define LED_R D0 
 #define TRIG_PIN D2
 #define ECHO_PIN D8
@@ -74,12 +75,13 @@ if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
   content.toUpperCase();
   if (content.substring(1) == "B4 E6 81 07") //change here the UID of the card/cards that you want to give access
   {
-    Serial.println("Authorized access");
+    Serial.println("Authorized access (orang1)");
+    kartu = 1;
     Serial.println();
     delay(500);
     digitalWrite(lock, LOW);
     delay(ACCESS_DELAY);
-    delay(3000);
+    delay(1000);
     digitalWrite(lock, HIGH);
     return;
   }
