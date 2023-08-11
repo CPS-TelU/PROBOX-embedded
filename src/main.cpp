@@ -2,7 +2,6 @@
 #include <MFRC522.h>
 #include <ESP8266WiFi.h>
 int lock = D1;
-int kartu;
 #define LED_R D0 
 #define TRIG_PIN D2
 #define ECHO_PIN D8
@@ -19,7 +18,7 @@ void setup() {
   pinMode(lock, OUTPUT);
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
-   pinMode(LED_R, OUTPUT);
+  pinMode(LED_R, OUTPUT);
   digitalWrite(lock, HIGH);
   SPI.begin();		//protokol untuk mikrokontroler dengan memori	
 	mfrc522.PCD_Init(); //inialisasi modulRFID
@@ -76,7 +75,6 @@ if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
   if (content.substring(1) == "B4 E6 81 07") //change here the UID of the card/cards that you want to give access
   {
     Serial.println("Authorized access (orang1)");
-    kartu = 1;
     Serial.println();
     delay(500);
     digitalWrite(lock, LOW);
