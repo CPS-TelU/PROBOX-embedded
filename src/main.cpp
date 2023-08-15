@@ -14,7 +14,7 @@ int lock = D1;
 #define PASSWORD "ginnamon"
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Instance of the class
 
-bool isSolenoidActive = false; // Track solenoid status
+//bool isSolenoidActive = false; // Track solenoid status
 bool isFirstTap = true;        // Track if it's the first RFID tap
 
 void setup() {
