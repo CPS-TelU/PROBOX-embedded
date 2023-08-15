@@ -91,4 +91,22 @@ void loop() {
 
     delay(1000); // Delay to prevent rapid toggling due to reading multiple taps
   }
+  if (content.substring(1) == "13 1F FB 0B") {
+    Serial.println("RFID tapped");
+
+    if (isFirstTap) {
+      Serial.println("Solenoid activated");
+      digitalWrite(lock, LOW);
+      isFirstTap = false;
+    } else {
+      Serial.println("Solenoid deactivated");
+      digitalWrite(lock, HIGH);
+      isFirstTap = true;
+    }
+
+    delay(1000); // Delay to prevent rapid toggling due to reading multiple taps
+  }
+  else   {
+    Serial.println(" Access denied");
+  }
 }
