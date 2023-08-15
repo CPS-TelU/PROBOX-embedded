@@ -45,11 +45,11 @@ void loop() {
   Serial.println(" cm");
   delay(1000);
 
-    if (distance_cm <50) {
+    if (distance_cm <30) {
     digitalWrite(LED_R,HIGH);
     Serial.println("Ada");
   }
-  if (distance_cm >50) {
+  if (distance_cm >30) {
     digitalWrite(LED_R,LOW);
     Serial.println("Kosong");
   }
@@ -59,20 +59,21 @@ if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
 	}
 	if ( ! mfrc522.PICC_ReadCardSerial()) { //membaca kartu
     return;
+    
 	}
   // Menampilkan UID di serial monitor
   Serial.print("UID tag :");
   String content= "";
   for (byte i = 0; i < mfrc522.uid.size; i++) //loop sebanyak byte yang ada pada UID
   {
-  Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+  Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? "0" : "");
   Serial.print(mfrc522.uid.uidByte[i], HEX);
-  content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+  content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? "0" : ""));
   content.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
   Serial.println();
   content.toUpperCase();
-  if (content.substring(1) == "B4 E6 81 07") //change here the UID of the card/cards that you want to give access
+  if (content.substring(0) == "B4E68107") 
   {
     Serial.println("Authorized access (orang1)");
     Serial.println();
@@ -83,7 +84,17 @@ if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
     digitalWrite(lock, HIGH);
     return;
   }
- 
+
+   if (content.substring(0) == "131FFB0B" ) 
+  {
+    Serial.println("Authorized access (orang2)");
+    Serial.println();
+    delay(500);
+    digitalWrite(lock, LOW);
+    delay(ACCESS_DELAY);
+    return;
+  }
+
  else   {
     Serial.println(" Access denied");
     digitalWrite(lock, HIGH);
