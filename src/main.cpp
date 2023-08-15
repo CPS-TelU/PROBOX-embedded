@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <MFRC522.h>
 #include <ESP8266WiFi.h>
+
 int lock = D1;
 #define LED_R D0 
 #define TRIG_PIN D2
@@ -9,9 +10,12 @@ int lock = D1;
 #define DENIED_DELAY 1000
 #define RST_PIN D3   
 #define SS_PIN D4
-#define SSID "iPhone"
-#define PASSWORD "yakaligaskuy"
-MFRC522 mfrc522(SS_PIN, RST_PIN);// Instance of the class
+#define SSID "Galaxy A727885"
+#define PASSWORD "ginnamon"
+MFRC522 mfrc522(SS_PIN, RST_PIN); // Instance of the class
+
+//bool isSolenoidActive = false; // Track solenoid status
+bool isFirstTap = true;        // Track if it's the first RFID tap
 
 void setup() {
   Serial.begin(9600);
@@ -20,8 +24,8 @@ void setup() {
   pinMode(ECHO_PIN, INPUT);
   pinMode(LED_R, OUTPUT);
   digitalWrite(lock, HIGH);
-  SPI.begin();		//protokol untuk mikrokontroler dengan memori	
-	mfrc522.PCD_Init(); //inialisasi modulRFID
+  SPI.begin();
+  mfrc522.PCD_Init();
   WiFi.begin(SSID, PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -32,7 +36,7 @@ void setup() {
 
 void loop() {
   digitalWrite(TRIG_PIN, LOW);
-  delayMicroseconds(2); 
+  delayMicroseconds(2);
   digitalWrite(TRIG_PIN, HIGH);
   delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
@@ -45,61 +49,46 @@ void loop() {
   Serial.println(" cm");
   delay(1000);
 
-    if (distance_cm <30) {
-    digitalWrite(LED_R,HIGH);
+  if (distance_cm < 50) {
+    digitalWrite(LED_R, HIGH);
     Serial.println("Ada");
   }
-  if (distance_cm >30) {
-    digitalWrite(LED_R,LOW);
+  if (distance_cm > 50) {
+    digitalWrite(LED_R, LOW);
     Serial.println("Kosong");
   }
 
-if ( ! mfrc522.PICC_IsNewCardPresent()) { //memeriksa kartu
+  if (!mfrc522.PICC_IsNewCardPresent()) {
     return;
-	}
-	if ( ! mfrc522.PICC_ReadCardSerial()) { //membaca kartu
+  }
+  if (!mfrc522.PICC_ReadCardSerial()) {
     return;
-    
-	}
-  // Menampilkan UID di serial monitor
+  }
+
   Serial.print("UID tag :");
-  String content= "";
-  for (byte i = 0; i < mfrc522.uid.size; i++) //loop sebanyak byte yang ada pada UID
-  {
-  Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? "0" : "");
-  Serial.print(mfrc522.uid.uidByte[i], HEX);
-  content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? "0" : ""));
-  content.concat(String(mfrc522.uid.uidByte[i], HEX));
+  String content = "";
+  for (byte i = 0; i < mfrc522.uid.size; i++) {
+    Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+    Serial.print(mfrc522.uid.uidByte[i], HEX);
+    content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+    content.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
   Serial.println();
   content.toUpperCase();
-  if (content.substring(0) == "B4E68107") 
-  {
-    Serial.println("Authorized access (orang1)");
-    Serial.println();
-    delay(500);
-    digitalWrite(lock, LOW);
-    delay(ACCESS_DELAY);
-    delay(1000);
-    digitalWrite(lock, HIGH);
-    return;
-  }
 
-   if (content.substring(0) == "131FFB0B" ) 
-  {
-    Serial.println("Authorized access (orang2)");
-    Serial.println();
-    delay(500);
-    digitalWrite(lock, LOW);
-    delay(ACCESS_DELAY);
-    return;
-  }
+  if (content.substring(1) == "B4 E6 81 07") {
+    Serial.println("RFID tapped");
 
- else   {
-    Serial.println(" Access denied");
-    digitalWrite(lock, HIGH);
-    delay(DENIED_DELAY);
-    digitalWrite(LED_R,LOW);
+    if (isFirstTap) {
+      Serial.println("Solenoid activated");
+      digitalWrite(lock, LOW);
+      isFirstTap = false;
+    } else {
+      Serial.println("Solenoid deactivated");
+      digitalWrite(lock, HIGH);
+      isFirstTap = true;
+    }
+
+    delay(1000); // Delay to prevent rapid toggling due to reading multiple taps
   }
-  delay(1000);
 }
