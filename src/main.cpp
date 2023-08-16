@@ -2,10 +2,10 @@
 #include <MFRC522.h>
 #include <ESP8266WiFi.h>
 
-int lock = D1;
-int buzzer = D0;
+const int lock = D1;
+const int buzzer = D0;
 const int LED_R = 10;
-#define button D6 
+const int button = A0; 
 #define TRIG_PIN D2
 #define ECHO_PIN D8
 #define ACCESS_DELAY 2000
@@ -20,6 +20,13 @@ MFRC522 mfrc522(SS_PIN, RST_PIN); // Instance of the class
 bool isFirstTap = true;        // Track if it's the first RFID tap
 bool refreshNeeded = false;
 
+void refreshSystem() {
+  digitalWrite(lock, HIGH);
+  digitalWrite(LED_R, LOW);
+  isFirstTap = true;
+  Serial.println("System refreshed");
+}
+
 void setup() {
   Serial.begin(9600);
   pinMode(lock, OUTPUT);
@@ -27,6 +34,7 @@ void setup() {
   pinMode(ECHO_PIN, INPUT);
   pinMode(LED_R, OUTPUT);
   pinMode(buzzer, OUTPUT);
+  pinMode(button, INPUT_PULLUP);
   digitalWrite(lock, HIGH);
   digitalWrite(LED_R, LOW);
   noTone(buzzer);
@@ -109,16 +117,9 @@ void loop() {
     digitalWrite(buzzer, HIGH);
     if (refreshNeeded) {
       refreshSystem();
-  }
+      refreshNeeded = false;
+    }
     delay(1000);
     digitalWrite(buzzer, LOW);
   }
-
-   
-}
-void refreshSystem() {
-  digitalWrite(lock, HIGH);
-  digitalWrite(LED_R, LOW);
-  noTone(buzzer);
-  isFirstTap = true;
 }
