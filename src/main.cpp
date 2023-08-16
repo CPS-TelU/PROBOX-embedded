@@ -3,7 +3,8 @@
 #include <ESP8266WiFi.h>
 
 int lock = D1;
-#define LED_R D0 
+int buzzer = D0;
+const int LED_R = 10; 
 #define TRIG_PIN D2
 #define ECHO_PIN D8
 #define ACCESS_DELAY 2000
@@ -23,6 +24,7 @@ void setup() {
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
   pinMode(LED_R, OUTPUT);
+  pinMode(buzzer, OUTPUT);
   digitalWrite(lock, HIGH);
   SPI.begin();
   mfrc522.PCD_Init();
@@ -76,24 +78,7 @@ void loop() {
   Serial.println();
   content.toUpperCase();
 
-  if (content.substring(1) == "B4 E6 81 07") {
-    Serial.println("RFID tapped");
-    Serial.println("Authorized access (orang1)");
-    Serial.println();
-
-    if (isFirstTap) {
-      Serial.println("Solenoid activated");
-      digitalWrite(lock, LOW);
-      isFirstTap = false;
-    } else {
-      Serial.println("Solenoid deactivated");
-      digitalWrite(lock, HIGH);
-      isFirstTap = true;
-    }
-
-    delay(1000); // Delay to prevent rapid toggling due to reading multiple taps
-  }
-  if (content.substring(1) == "13 1F FB 0B") {
+  if (content.substring(1) == "B4 E6 81 07" || content.substring(1) == "13 1F FB 0B") {
     Serial.println("RFID tapped");
     Serial.println("Authorized access (orang1)");
     Serial.println();
@@ -111,6 +96,9 @@ void loop() {
     delay(1000); // Delay to prevent rapid toggling due to reading multiple taps
   }
   else   {
-    Serial.println(" Access denied");
+    Serial.println("Access denied");
+    digitalWrite(buzzer, HIGH);
+    delay(1000);
+    digitalWrite(buzzer, LOW);
   }
 }
