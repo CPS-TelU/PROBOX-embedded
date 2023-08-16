@@ -3,9 +3,9 @@
 #include <ESP8266WiFi.h>
 
 const int lock = D1;
-const int buzzer = D0;
+const int buzzer = 9;
 const int LED_R = 10;
-const int button = A0; 
+const int button = D0; 
 #define TRIG_PIN D2
 #define ECHO_PIN D8
 #define ACCESS_DELAY 2000
@@ -18,14 +18,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN); // Instance of the class
 
 //bool isSolenoidActive = false; // Track solenoid status
 bool isFirstTap = true;        // Track if it's the first RFID tap
-bool refreshNeeded = false;
-
-void refreshSystem() {
-  digitalWrite(lock, HIGH);
-  digitalWrite(LED_R, LOW);
-  isFirstTap = true;
-  Serial.println("System refreshed");
-}
+bool refresh = false;
 
 void setup() {
   Serial.begin(9600);
@@ -64,14 +57,23 @@ void loop() {
   Serial.println(" cm");
   delay(1000);
 
-  if (distance_cm < 50) {
+  if (distance_cm < 30) {
     digitalWrite(LED_R, HIGH);
     Serial.println("Ada");
   }
-  if (distance_cm > 50) {
+  if (distance_cm > 30) {
     digitalWrite(LED_R, LOW);
     Serial.println("Kosong");
   }
+
+  if (digitalRead(button) == LOW) {
+    refresh = true;
+  }
+  else if (refresh) {
+      Serial.println("System refreshed");
+      ESP.restart();
+      refresh = false;
+    }
 
   if (!mfrc522.PICC_IsNewCardPresent()) {
     return;
@@ -91,14 +93,10 @@ void loop() {
   Serial.println();
   content.toUpperCase();
 
-  if (digitalRead(button) == LOW) {
-    refreshNeeded = true;
-  }
   
   if (content.substring(1) == "B4 E6 81 07" || content.substring(1) == "13 1F FB 0B") {
     Serial.println("RFID tapped");
     Serial.println("Authorized access (orang1)");
-    Serial.println();
 
     if (isFirstTap) {
       Serial.println("Solenoid activated");
@@ -115,11 +113,8 @@ void loop() {
   else   {
     Serial.println("Access denied");
     digitalWrite(buzzer, HIGH);
-    if (refreshNeeded) {
-      refreshSystem();
-      refreshNeeded = false;
-    }
     delay(1000);
     digitalWrite(buzzer, LOW);
   }
 }
+
