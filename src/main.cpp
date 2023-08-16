@@ -4,7 +4,8 @@
 
 int lock = D1;
 int buzzer = D0;
-const int LED_R = 10; 
+const int LED_R = 10;
+#define button D6 
 #define TRIG_PIN D2
 #define ECHO_PIN D8
 #define ACCESS_DELAY 2000
@@ -17,6 +18,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN); // Instance of the class
 
 //bool isSolenoidActive = false; // Track solenoid status
 bool isFirstTap = true;        // Track if it's the first RFID tap
+bool refreshNeeded = false;
 
 void setup() {
   Serial.begin(9600);
@@ -26,6 +28,9 @@ void setup() {
   pinMode(LED_R, OUTPUT);
   pinMode(buzzer, OUTPUT);
   digitalWrite(lock, HIGH);
+  digitalWrite(LED_R, LOW);
+  noTone(buzzer);
+  isFirstTap = true;
   SPI.begin();
   mfrc522.PCD_Init();
   WiFi.begin(SSID, PASSWORD);
@@ -78,6 +83,10 @@ void loop() {
   Serial.println();
   content.toUpperCase();
 
+  if (digitalRead(button) == LOW) {
+    refreshNeeded = true;
+  }
+  
   if (content.substring(1) == "B4 E6 81 07" || content.substring(1) == "13 1F FB 0B") {
     Serial.println("RFID tapped");
     Serial.println("Authorized access (orang1)");
@@ -98,7 +107,18 @@ void loop() {
   else   {
     Serial.println("Access denied");
     digitalWrite(buzzer, HIGH);
+    if (refreshNeeded) {
+      refreshSystem();
+  }
     delay(1000);
     digitalWrite(buzzer, LOW);
   }
+
+   
+}
+void refreshSystem() {
+  digitalWrite(lock, HIGH);
+  digitalWrite(LED_R, LOW);
+  noTone(buzzer);
+  isFirstTap = true;
 }
