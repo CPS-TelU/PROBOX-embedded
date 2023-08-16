@@ -78,6 +78,8 @@ void loop() {
 
   if (content.substring(1) == "B4 E6 81 07") {
     Serial.println("RFID tapped");
+    Serial.println("Authorized access (orang1)");
+    Serial.println();
 
     if (isFirstTap) {
       Serial.println("Solenoid activated");
@@ -93,6 +95,8 @@ void loop() {
   }
   if (content.substring(1) == "13 1F FB 0B") {
     Serial.println("RFID tapped");
+    Serial.println("Authorized access (orang1)");
+    Serial.println();
 
     if (isFirstTap) {
       Serial.println("Solenoid activated");
