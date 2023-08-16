@@ -3,9 +3,9 @@
 #include <ESP8266WiFi.h>
 
 const int lock = D1;
-const int buzzer = D0;
+const int buzzer = 9;
 const int LED_R = 10;
-const int button = A0; 
+const int button = D0; 
 #define TRIG_PIN D2
 #define ECHO_PIN D8
 #define ACCESS_DELAY 2000
@@ -70,9 +70,6 @@ void loop() {
     refresh = true;
   }
   else if (refresh) {
-      digitalWrite(lock, HIGH);
-      digitalWrite(LED_R, LOW);
-      isFirstTap = true;
       Serial.println("System refreshed");
       ESP.restart();
       refresh = false;
