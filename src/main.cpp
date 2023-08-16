@@ -57,11 +57,11 @@ void loop() {
   Serial.println(" cm");
   delay(1000);
 
-  if (distance_cm < 50) {
+  if (distance_cm < 30) {
     digitalWrite(LED_R, HIGH);
     Serial.println("Ada");
   }
-  if (distance_cm > 50) {
+  if (distance_cm > 30) {
     digitalWrite(LED_R, LOW);
     Serial.println("Kosong");
   }
