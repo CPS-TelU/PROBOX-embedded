@@ -71,6 +71,9 @@ void loop() {
   }
   else if (refresh) {
       Serial.println("System refreshed");
+      digitalWrite(lock, LOW);
+      Serial.print("Solenoid deactivated");
+      delay(1000);
       ESP.restart();
       refresh = false;
     }
@@ -92,7 +95,6 @@ void loop() {
   }
   Serial.println();
   content.toUpperCase();
-
   
   if (content.substring(1) == "B4 E6 81 07" || content.substring(1) == "13 1F FB 0B") {
     Serial.println("RFID tapped");
