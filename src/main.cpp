@@ -3,8 +3,8 @@
 #include <ESP8266WiFi.h>
 
 const int lock = D1;
-const int buzzer = D9;
-const int LED_R = D10;
+const int buzzer = 9;
+const int LED_R = 10;
 const int button = D0; 
 #define TRIG_PIN D2
 #define ECHO_PIN D8
@@ -96,7 +96,7 @@ void loop() {
   Serial.println();
   content.toUpperCase();
   
-  if (content.substring(1) == "B4 E6 81 07" || content.substring(1) == "13 1F FB 0B") {
+  else if (content.substring(1) == "B4 E6 81 07" || content.substring(1) == "13 1F FB 0B") {
     Serial.println("RFID tapped");
     Serial.println("Authorized access (orang1)");
 
@@ -109,7 +109,6 @@ void loop() {
       digitalWrite(lock, HIGH);
       isFirstTap = true;
     }
-
     delay(1000); // Delay to prevent rapid toggling due to reading multiple taps
   }
   else   {
@@ -118,5 +117,6 @@ void loop() {
     delay(1000);
     digitalWrite(buzzer, LOW);
   }
+  return;
 }
 
