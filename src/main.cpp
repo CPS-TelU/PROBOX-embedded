@@ -3,8 +3,8 @@
 #include <ESP8266WiFi.h>
 
 const int lock = D1;
-const int buzzer = 9;
-const int LED_R = 10;
+const int buzzer = D9;
+const int LED_R = D10;
 const int button = D0; 
 #define TRIG_PIN D2
 #define ECHO_PIN D8
@@ -12,8 +12,8 @@ const int button = D0;
 #define DENIED_DELAY 1000
 #define RST_PIN D3   
 #define SS_PIN D4
-#define SSID "Galaxy A727885"
-#define PASSWORD "ginnamon"
+#define SSID "iPhone"
+#define PASSWORD "yakaligaskuy"
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Instance of the class
 
 //bool isSolenoidActive = false; // Track solenoid status
