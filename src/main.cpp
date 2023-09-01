@@ -21,33 +21,24 @@ int duration = 0;
 int distance = 0;
 
 const char* gktep = "";
-bool isFirstTap = true;        // Track if it's the first RFID tap
+bool isFirstTap = true;        
 bool refresh = false;
-const char* tap = "KUNCI"; // Instance of the class
+const char* tap = "KUNCI"; 
 
-// Replace with your network credentials
 const char* ssid     = "hoka";
 const char* password = "1408Hoka";
 
-// supabase credentials
-String API_URL = "https://pbzaiztldlpympnwfpuz.supabase.co";
-String API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiemFpenRsZGxweW1wbndmcHV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTI3NjA1MTMsImV4cCI6MjAwODMzNjUxM30.tHDSYLyJkULk52TB8hM9rc6xYCse2xfu39RlgQjCIK0";
-String TableName = "sensor";
+String API_URL = ""; //api url
+String API_KEY = ""; //apikey
+String TableName = ""; //table name
 const int httpsPort = 443;
-
-// Sending interval of the packets in seconds
-// int sendinginterval = 1200; // 20 minutes
-// //int sendinginterval = 120; // 2 minutes
 
 HTTPClient https;
 WiFiClientSecure client;
 void setup() {
-  // builtIn led is used to indicate when a message is being sent
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH); // the builtin LED is wired backwards HIGH turns it off
-  // HTTPS is used without checking credentials 
+  digitalWrite(LED_BUILTIN, HIGH); 
   client.setInsecure();
-  // Connect to the WIFI 
   Serial.begin(9600);
   pinMode(lock, OUTPUT);
   pinMode(TRIG_PIN, OUTPUT);
@@ -69,7 +60,6 @@ void setup() {
     Serial.print(".");
   }
   
-  // Print local IP address
   Serial.println("");
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
@@ -79,9 +69,8 @@ String uidString = "";
 String status = "";
 void loop() {
 
-   // If connected to the internet turn the Builtin led On and attempt to send a message to the database 
   if (WiFi.status() == WL_CONNECTED) {
-    digitalWrite(LED_BUILTIN, LOW); // LOW turns ON
+    digitalWrite(LED_BUILTIN, LOW); 
 
   digitalWrite(TRIG_PIN, LOW);
   delayMicroseconds(2);
@@ -120,7 +109,6 @@ void loop() {
       refresh = false;
     }
     if (!mfrc522.PICC_IsNewCardPresent()) {
-    // sendBoxData(); 
     return;
   }
   if (!mfrc522.PICC_ReadCardSerial()) {
@@ -142,20 +130,27 @@ void loop() {
 
   
   bool authorized = false;
-    if (uidString == "551E9552" || uidString == "584E0C53" || uidString == "BAE52B3B" || uidString == "1637C942" || uidString == "8518D952" ||
-        uidString == "351C6452" || uidString == "782D9053" || uidString == "458B2552" || uidString == "48EFC453") {
+    if (uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123" ||
+        uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123") { // change data from card registered
       authorized = true;
 
-      if (uidString == "551E9552") uidString = "AWP 21";
-      else if (uidString == "584E0C53") uidString = "HZN 21";
-      else if (uidString == "351C6452") uidString = "MFA 21";
-      else if (uidString == "782D9053") uidString = "GHN 21";
-      else if (uidString == "48EFC453") uidString = "ASF 21";
-      else if (uidString == "458B2552") uidString = "OKA 21";
-      else if (uidString == "BAE52B3B") uidString = "HRI 21";
-      else if (uidString == "1637C942") uidString = "RIA 21";
-      else if (uidString == "8518D952") uidString = "RHN 21";
+      if (uidString == "123") uidString = "ABC"; // change data
+      else if (uidString == "123") uidString = "ABC";
+      else if (uidString == "123") uidString = "ABC";
+      else if (uidString == "123") uidString = "ABC";
+      else if (uidString == "123") uidString = "ABC";
+      else if (uidString == "123") uidString = "ABC";
+      else if (uidString == "123") uidString = "ABC";
+      else if (uidString == "123") uidString = "ABC";
+      else if (uidString == "123") uidString = "ABC";
+      else if (uidString == "123") uidString = "ABC";
+      else if (uidString == "123") uidString = "ABC";
+      else if (uidString == "123") uidString = "ABC";
     }
+    
+  
+if (authorized) {
+
   if (isFirstTap) {
     Serial.println("Solenoid activated");
     digitalWrite(lock, LOW);
@@ -165,10 +160,8 @@ void loop() {
     digitalWrite(lock, HIGH);
     isFirstTap = true;
   }
-
   tap = isFirstTap ? "KUNCI" : "BUKA";
-if (authorized) {
-  // Send the post request to SUPABASE only for authorized RFID tags
+
   https.begin(client, API_URL + "/rest/v1/" + TableName);
   https.addHeader("Content-Type", "application/json");
   https.addHeader("Prefer", "return=representation");
@@ -176,19 +169,18 @@ if (authorized) {
   https.addHeader("Authorization", "Bearer " + API_KEY);
   int httpCode = https.POST("{\"uid\":\"" + uidString + "\",\"status\":\"" + status + "\",\"selenoid\":\"" + tap + "\"}");
   String payload = https.getString(); 
-  Serial.println(httpCode);   // Print HTTP return code
-  Serial.println(payload);    // Print request response payload
+  Serial.println(httpCode);   
+  Serial.println(payload);    
   https.end();
 
-  digitalWrite(LED_BUILTIN, HIGH); // HIGH turns off
+  digitalWrite(LED_BUILTIN, HIGH); 
 } else {
   Serial.println("Access denied");
-  digitalWrite(buzzer, HIGH); // Turn on the buzzer
+  digitalWrite(buzzer, HIGH); 
   delay(1000);
-  digitalWrite(buzzer, LOW); // Turn off the buzzer
+  digitalWrite(buzzer, LOW); 
 }
 
-// Delay before sending the next request
 delay(1000);
   }
 }
