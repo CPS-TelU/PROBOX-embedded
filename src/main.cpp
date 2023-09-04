@@ -3,6 +3,8 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <ESP8266HTTPClient.h>
+#include <WifiManager.h>
+#include <Wire.h>
 
 const int lock = D1;
 const int buzzer = 9;
@@ -14,6 +16,8 @@ const int button = D0;
 #define DENIED_DELAY 1000
 #define RST_PIN D3 
 #define SS_PIN D4
+#define WIFI_SSID "ProBox" //sesuaikan dengan hotspot yang digunakan
+#define WIFI_PASSWORD "1234567890"
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
 int val = 0;
@@ -24,9 +28,6 @@ const char* gktep = "";
 bool isFirstTap = true;        
 bool refresh = false;
 const char* tap = "KUNCI"; 
-
-const char* ssid     = "hoka";
-const char* password = "1408Hoka";
 
 String API_URL = ""; //api url
 String API_KEY = ""; //apikey
@@ -53,17 +54,18 @@ void setup() {
   SPI.begin();
   mfrc522.PCD_Init();
   Serial.print("Connecting to ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Connecting to Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    WiFiManager wm;
+    wm.autoConnect("ProBox");
   }
-  
-  Serial.println("");
-  Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
+  Serial.println();
+  Serial.print("Connected with IP: ");
   Serial.println(WiFi.localIP());
+  Serial.println();
+  
 }
 String uidString = "";
 String status = "";
@@ -130,24 +132,6 @@ void loop() {
 
   
   bool authorized = false;
-<<<<<<< HEAD
-    if (uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123" ||
-        uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123" || uidString == "123") { // change data from card registered
-      authorized = true;
-
-      if (uidString == "123") uidString = "ABC"; // change data
-      else if (uidString == "123") uidString = "ABC";
-      else if (uidString == "123") uidString = "ABC";
-      else if (uidString == "123") uidString = "ABC";
-      else if (uidString == "123") uidString = "ABC";
-      else if (uidString == "123") uidString = "ABC";
-      else if (uidString == "123") uidString = "ABC";
-      else if (uidString == "123") uidString = "ABC";
-      else if (uidString == "123") uidString = "ABC";
-      else if (uidString == "123") uidString = "ABC";
-      else if (uidString == "123") uidString = "ABC";
-      else if (uidString == "123") uidString = "ABC";
-=======
     if (uidString == "551E9552" || uidString == "584E0C53" || uidString == "BAE52B3B" || uidString == "1637C942" || uidString == "8518D952" || uidString == "9A1E133C" || uidString == "C99E2AD6" ||
         uidString == "351C6452" || uidString == "4AD7073C" || uidString == "782D9053" || uidString == "458B2552" || uidString == "48EFC453") {
       authorized = true;
@@ -164,7 +148,6 @@ void loop() {
       else if (uidString == "9A1E133C") uidString = "MHN 20";
       else if (uidString == "C99E2AD6") uidString = "VAN 20";
       else if (uidString == "4AD7073C") uidString = "ITF 20";
->>>>>>> cda3746bd3f1b2b66e4b7d7a693b851ad709865f
     }
     
   
